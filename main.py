@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from router import admin,auth
 from router.auth import get_current_user
 from sqlalchemy import asc, desc
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
 class RoommateRequestCreate(BaseModel):
@@ -65,6 +65,16 @@ class RentPaymentUpdate(BaseModel):
     transaction_id: Optional[str] =Field( default=None )
     
 models.Base.metadata.create_all(bind=engine)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5174",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(auth.router)
 app.include_router(admin.router)
 
