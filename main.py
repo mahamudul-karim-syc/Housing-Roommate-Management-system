@@ -12,6 +12,24 @@ from sqlalchemy import asc, desc
 from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
+
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class RoommateRequestCreate(BaseModel):
     preferred_location: str
     budget_min: Optional[float] = Field(default=None, ge=0)
@@ -65,16 +83,6 @@ class RentPaymentUpdate(BaseModel):
     transaction_id: Optional[str] =Field( default=None )
     
 models.Base.metadata.create_all(bind=engine)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5174",
-        "http://localhost:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 app.include_router(auth.router)
 app.include_router(admin.router)
 
@@ -89,9 +97,7 @@ db_dapandancy=Annotated[Session,Depends(get_db)]
 user_dapandancy=Annotated[dict,Depends(get_current_user)]
 
 @app.get("/rooms/all")
-def get_all_rooms(user: user_dapandancy, db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication")
+def get_all_rooms( db: db_dapandancy):
     rooms = db.query(Room).all()
     return rooms
 

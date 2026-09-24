@@ -101,6 +101,37 @@ def login_user(db:db_dapandancy,from_data:Annotated[OAuth2PasswordRequestForm,De
         raise HTTPException(status_code=401,detail='Filed Autheraizration')
     token=token_user(user.username,user.id,user.role, timedelta(minutes=30))
     return {'access_token':token,'token_type':'bearer'}
+@router.get('/user')
+def get_user(
+    user: user_dapandancy,
+    db: db_dapandancy
+):
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail='Failed Authentication'
+        )
+
+    current_user = db.query(User).filter(
+        User.id == user.get("user_id")
+    ).first()
+
+    if current_user is None:
+        raise HTTPException(
+            status_code=404,
+            detail='User not found'
+        )
+
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "username": current_user.username,
+        "firstname": current_user.firstname,
+        "lastname": current_user.lastname,
+        "phone": current_user.phone,
+        "role": current_user.role
+    }
+
 
 
 @router.put('/Edituser')
