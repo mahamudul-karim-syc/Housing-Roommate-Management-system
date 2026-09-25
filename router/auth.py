@@ -152,7 +152,6 @@ def update_user(user:user_dapandancy,db:db_dapandancy,Update_user:Update_user):
 
 @router.put('/passwordchange')
 def update_password(user:user_dapandancy,db:db_dapandancy,updatepassword:Update_password):
-    
     if user is None:
         raise HTTPException(status_code=401,detail='Filed Autheraizration')
     
@@ -165,4 +164,5 @@ def update_password(user:user_dapandancy,db:db_dapandancy,updatepassword:Update_
     
     db.add(user)
     db.commit()
-    return JSONResponse(status_code=201,content={"massage":"Password Update Successfully"})
+    return JSONResponse(status_code=201,content={"message":"Password Update Successfully"})
+

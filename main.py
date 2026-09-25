@@ -254,22 +254,20 @@ def create_review(room_id: int,review_data: ReviewCreate,user: user_dapandancy, 
 
     db.add(review)
     db.commit()
-    return JSONResponse(
-        status_code=201,
-        content={"message": "Review created successfully","review_id": review.id})
+    return JSONResponse( status_code=201, content={"message": "Review created successfully","review_id": review.id})
     
-@app.get("/review/room/{room_id}")
-def get_room_reviews(room_id: int,user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication" )
+# @app.get("/review/room/{room_id}")
+# def get_room_reviews(room_id: int,user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401,detail="Failed authentication" )
 
-    room = db.query(Room).filter(Room.id == room_id).first()
+#     room = db.query(Room).filter(Room.id == room_id).first()
 
-    if room is None:
-        raise HTTPException(status_code=404,detail="Room not found")
+#     if room is None:
+#         raise HTTPException(status_code=404,detail="Room not found")
 
-    reviews = db.query(Review).filter(Review.room_id == room_id).all()
-    return reviews
+#     reviews = db.query(Review).filter(Review.room_id == room_id).all()
+#     return reviews
 @app.get("/review/my")
 def get_my_reviews(user: user_dapandancy,db: db_dapandancy):
     if user is None:
@@ -278,30 +276,7 @@ def get_my_reviews(user: user_dapandancy,db: db_dapandancy):
     reviews = db.query(Review).filter(Review.user_id == user.get("user_id")).all()
     return reviews
 
-@app.put("/review/{review_id}")
-def update_review(review_id: int,review_data: ReviewUpdate, user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication")
 
-    review = db.query(Review).filter(Review.id == review_id,Review.user_id == user.get("user_id")).first()
-
-    if review is None:
-        raise HTTPException(status_code=404,detail="Review not found")
-    update_data = review_data.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(review, key, value)
-    db.commit()
-    return JSONResponse( status_code=201, content={"message": "Review updated successfully"})
-@app.delete("/review/{review_id}")
-def delete_review(review_id: int, user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication")
-    review = db.query(Review).filter(Review.id == review_id,Review.user_id == user.get("user_id") ).first()
-    if review is None:
-        raise HTTPException( status_code=404,detail="Review not found")
-    db.delete(review)
-    db.commit()
-    return JSONResponse( status_code=201, content={"message": "Review deleted successfully"})
 @app.post("/payment")
 def create_payment(payment_data: RentPaymentCreate,user: user_dapandancy,db: db_dapandancy):
     if user is None:
@@ -320,55 +295,6 @@ def create_payment(payment_data: RentPaymentCreate,user: user_dapandancy,db: db_
     db.add(payment)
     db.commit()
     return JSONResponse( status_code=201, content={"message": "Rent payment created successfully",    "payment_id": payment.id})
-@app.get("/payment/my")
-def get_my_payments(user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication")
-    payments = db.query(RentPayment).filter(RentPayment.user_id == user.get("user_id")).all()
-    return payments
-@app.get("/payment/room/{room_id}")
-def get_room_payments(room_id: int,user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401, detail="Failed authentication")
-    room = db.query(Room).filter(Room.id == room_id ).first()
-    if room is None:
-        raise HTTPException( status_code=404, detail="Room not found")
-
-    payments = db.query(RentPayment).filter(RentPayment.room_id == room_id).all()
-    return payments
-
-@app.get("/payment/{payment_id}")
-def get_payment( payment_id: int, user: user_dapandancy, db: db_dapandancy):
-    if user is None:
-        raise HTTPException( status_code=401, detail="Failed authentication" )
-    payment = db.query(RentPayment).filter( RentPayment.id == payment_id,  RentPayment.user_id == user.get("user_id")).first()
-    if payment is None:
-        raise HTTPException( status_code=404,detail="Payment not found")
-    return payment
-
-@app.put("/payment/{payment_id}")
-def update_payment(payment_id: int,payment_data: RentPaymentUpdate, user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException( status_code=401, detail="Failed authentication")
-    payment = db.query(RentPayment).filter(RentPayment.id == payment_id,RentPayment.user_id == user.get("user_id")).first()
-    if payment is None:
-        raise HTTPException(status_code=404,detail="Payment not found")
-    update_data = payment_data.model_dump( exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(payment, key, value)
-    db.commit()
-    return JSONResponse( status_code=201, content= {"message": "Payment updated successfully"})
-@app.delete("/payment/{payment_id}")
-def delete_payment(payment_id: int,user: user_dapandancy,db: db_dapandancy):
-    if user is None:
-        raise HTTPException(status_code=401,detail="Failed authentication")
-    payment = db.query(RentPayment).filter(RentPayment.id == payment_id,RentPayment.user_id == user.get("user_id")).first()
-    if payment is None:
-        raise HTTPException(status_code=404,detail="Payment not found")
-    db.delete(payment)
-    db.commit()
-    return JSONResponse( status_code=201, content= {"message": "Payment deleted successfully"})
-
 
 @app.get("/rooms/sort")
 def sort_rooms(
@@ -395,3 +321,76 @@ def sort_rooms(
         data = db.query(Room).order_by(desc(getattr(Room, sorted_by))).all()
 
     return data
+
+# @app.get("/payment/my")
+# def get_my_payments(user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401,detail="Failed authentication")
+#     payments = db.query(RentPayment).filter(RentPayment.user_id == user.get("user_id")).all()
+#     return payments
+# @app.get("/payment/room/{room_id}")
+# def get_room_payments(room_id: int,user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401, detail="Failed authentication")
+#     room = db.query(Room).filter(Room.id == room_id ).first()
+#     if room is None:
+#         raise HTTPException( status_code=404, detail="Room not found")
+
+#     payments = db.query(RentPayment).filter(RentPayment.room_id == room_id).all()
+#     return payments
+
+# @app.get("/payment/{payment_id}")
+# def get_payment( payment_id: int, user: user_dapandancy, db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException( status_code=401, detail="Failed authentication" )
+#     payment = db.query(RentPayment).filter( RentPayment.id == payment_id,  RentPayment.user_id == user.get("user_id")).first()
+#     if payment is None:
+#         raise HTTPException( status_code=404,detail="Payment not found")
+#     return payment
+
+# @app.put("/payment/{payment_id}")
+# def update_payment(payment_id: int,payment_data: RentPaymentUpdate, user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException( status_code=401, detail="Failed authentication")
+#     payment = db.query(RentPayment).filter(RentPayment.id == payment_id,RentPayment.user_id == user.get("user_id")).first()
+#     if payment is None:
+#         raise HTTPException(status_code=404,detail="Payment not found")
+#     update_data = payment_data.model_dump( exclude_unset=True)
+#     for key, value in update_data.items():
+#         setattr(payment, key, value)
+#     db.commit()
+#     return JSONResponse( status_code=201, content= {"message": "Payment updated successfully"})
+# @app.delete("/payment/{payment_id}")
+# def delete_payment(payment_id: int,user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401,detail="Failed authentication")
+#     payment = db.query(RentPayment).filter(RentPayment.id == payment_id,RentPayment.user_id == user.get("user_id")).first()
+#     if payment is None:
+#         raise HTTPException(status_code=404,detail="Payment not found")
+#     db.delete(payment)
+#     db.commit()
+#     return JSONResponse( status_code=201, content= {"message": "Payment deleted successfully"})
+# @app.put("/review/{review_id}")
+# def update_review(review_id: int,review_data: ReviewUpdate, user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401,detail="Failed authentication")
+
+#     review = db.query(Review).filter(Review.id == review_id,Review.user_id == user.get("user_id")).first()
+
+#     if review is None:
+#         raise HTTPException(status_code=404,detail="Review not found")
+#     update_data = review_data.model_dump(exclude_unset=True)
+#     for key, value in update_data.items():
+#         setattr(review, key, value)
+#     db.commit()
+#     return JSONResponse( status_code=201, content={"message": "Review updated successfully"})
+# @app.delete("/review/{review_id}")
+# def delete_review(review_id: int, user: user_dapandancy,db: db_dapandancy):
+#     if user is None:
+#         raise HTTPException(status_code=401,detail="Failed authentication")
+#     review = db.query(Review).filter(Review.id == review_id,Review.user_id == user.get("user_id") ).first()
+#     if review is None:
+#         raise HTTPException( status_code=404,detail="Review not found")
+#     db.delete(review)
+#     db.commit()
+#     return JSONResponse( status_code=201, content={"message": "Review deleted successfully"})
