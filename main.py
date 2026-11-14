@@ -20,7 +20,7 @@ origins = [
     "http://127.0.0.1:5174",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://stunning-gingersnap-1a9a2d.netlify.app"
+    "https://stunning-gingersnap-1a9a2d.netlify.app",
     "https://housing-roommat-management.netlify.app"
 ]
 
