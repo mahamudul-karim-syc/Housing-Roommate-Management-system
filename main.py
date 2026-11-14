@@ -21,6 +21,7 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://stunning-gingersnap-1a9a2d.netlify.app"
+    "https://housing-roommat-management.netlify.app"
 ]
 
 app.add_middleware(
@@ -110,6 +111,16 @@ def get_specific_room(user: user_dapandancy,db: db_dapandancy,room_id: int):
     if room is None:
         raise HTTPException(status_code=404,detail="Room Not Found!")
     return room
+@app.get("/serach")
+def get_serach(user: user_dapandancy,db: db_dapandancy,category:str=Query(description="serach the Room in type")):
+    if user is None:
+        raise HTTPException( status_code=401,detail="Failed authentication")
+    rooms =db.query(Room).filter(Room.category.ilike(f"%{category}%")).all() 
+   
+    if not rooms:
+        raise HTTPException(status_code=404,detail="Room Not Found!")
+    return rooms
+
 @app.post("/reserved/{room_id}")
 def reserve_room( user: user_dapandancy, db: db_dapandancy, room_id: int):
     if user is None:
